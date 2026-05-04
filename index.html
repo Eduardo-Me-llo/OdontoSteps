@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OdontoSteps - Guia de Procedimentos</title>
+    <style>
+        :root {
+            --primary: #2C7A7B;
+            --primary-dark: #285E61;
+            --accent: #4FD1C5;
+            --bg: #F7FAFC;
+            --card-bg: #FFFFFF;
+            --text: #2D3748;
+            --text-light: #718096;
+            --danger: #E53E3E;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 5rem;
+        }
+
+        /* Views */
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Buttons */
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(44, 122, 123, 0.2);
+        }
+        .btn-primary:active { transform: scale(0.98); background-color: var(--primary-dark); }
+        
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-secondary { background-color: #EDF2F7; color: #4A5568; }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #E2E8F0;
+        }
+        .card-info h3 { font-size: 1.1rem; color: var(--primary-dark); margin-bottom: 4px; }
+        .card-info p { color: var(--text-light); font-size: 0.85rem; }
+        
+        .actions { display: flex; gap: 8px; }
+        .actions button { padding: 10px; border-radius: 10px; }
+
+        /* Form styling */
+        label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-light); }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 1.25rem;
+            border: 2px solid #E2E8F0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        textarea { resize: vertical; min-height: 100px; }
+        
+        .step-editor-item {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .step-editor-item h4 { margin-bottom: 12px; color: var(--primary); font-size: 0.9rem; text-transform: uppercase; }
+        .remove-step {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #FED7D7;
+            color: #C53030;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+
+        /* Presentation Mode */
+        #presentation-view {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #1A202C;
+            color: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2.5rem;
+            text-align: center;
+            z-index: 1000;
+            cursor: pointer;
+        }
+        #presentation-view.active { display: flex; }
+        
+        #pres-counter {
+            position: absolute;
+            top: 30px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        #pres-title {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            font-weight: 800;
+        }
+        #pres-desc {
+            font-size: 1.2rem;
+            color: #CBD5E0;
+            line-height: 1.6;
+            max-width: 500px;
+        }
+        .tap-hint {
+            position: absolute;
+            bottom: 100px;
+            font-size: 0.8rem;
+            color: #718096;
+            animation: pulse 2s infinite;
+        }
+        .close-presentation {
+            position: absolute;
+            bottom: 30px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <header id="main-header">
+        <h1>ODONTOSTEPS</h1>
+    </header>
+
+    <div class="container">
+        <!-- HOME: Lista de Operações -->
+        <div id="home-view" class="view active">
+            <button class="btn-primary" onclick="openEditor()">+ Novo Procedimento</button>
+            <div id="procedures-list"></div>
+        </div>
+
+        <!-- EDITOR: Criar/Editar -->
+        <div id="edit-view" class="view">
+            <h2 id="editor-title" style="margin-bottom: 1.5rem; color: var(--primary-dark);">Novo Procedimento</h2>
+            
+            <label>Nome da Operação:</label>
+            <input type="text" id="proc-name" placeholder="Ex: Acesso Endodôntico">
+
+            <div id="steps-wrapper"></div>
+
+            <button class="btn-secondary" style="width: 100%; margin-bottom: 2rem; border: 2px dashed #CBD5E0; background: transparent;" onclick="addStepField()">
+                + Adicionar Etapa
+            </button>
+            
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-primary" style="flex: 2; margin-bottom: 0;" onclick="saveProcedure()">Salvar</button>
+                <button class="btn-secondary" style="flex: 1;" onclick="goHome()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRESENTATION: Modo de Execução -->
+    <div id="presentation-view" onclick="handleTap(event)">
+        <div id="pres-counter">Etapa 1 de 5</div>
+        <div id="pres-title">Título</div>
+        <div id="pres-desc">Descrição</div>
+        <div class="tap-hint">Toque na tela para avançar</div>
+        <button class="close-presentation" onclick="closePresentation(event)">Finalizar / Sair</button>
+    </div>
+
+    <script>
+        // Dados iniciais para o estudante
+        const defaultProcedures = [
+            {
+                id: 1,
+                name: "Restauração Classe I (Resina)",
+                steps: [
+                    { title: "Anestesia e Isolamento", desc: "Realizar anestesia local e isolamento absoluto com dique de borracha." },
+                    { title: "Abertura e Remoção", desc: "Remover tecido cariado e realizar o preparo cavitário conservador." },
+                    { title: "Condicionamento", desc: "Ácido fosfórico: 30s em esmalte / 15s em dentina. Lavar e secar (sem desidratar)." },
+                    { title: "Adesivo", desc: "Aplicar sistema adesivo, jato de ar leve e fotopolimerizar por 20s." },
+                    { title: "Incrementos", desc: "Inserir resina em técnica incremental (máx 2mm) e fotopolimerizar cada camada." },
+                    { title: "Acabamento", desc: "Checagem de oclusão e polimento final." }
+                ]
+            }
+        ];
+
+        let procedures = JSON.parse(localStorage.getItem('odontoData')) || defaultProcedures;
+        let editingId = null;
+        let activeProc = null;
+        let currentStep = 0;
+
+        function saveToStorage() {
+            localStorage.setItem('odontoData', JSON.stringify(procedures));
+        }
+
+        function renderHome() {
+            const list = document.getElementById('procedures-list');
+            list.innerHTML = '';
+            procedures.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <div class="card-info" onclick="startPresentation(${p.id})">
+                        <h3>${p.name}</h3>
+                        <p>${p.steps.length} etapas definidas</p>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-secondary" onclick="openEditor(${p.id})">✏️</button>
+                        <button class="btn-danger" onclick="deleteProc(${p.id})">🗑️</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function goHome() {
+            document.getElementById('main-header').style.display = 'block';
+            renderHome();
+            switchView('home-view');
+        }
+
+        function switchView(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('presentation-view').classList.remove('active');
+            if(id !== 'presentation-view') document.getElementById(id).classList.add('active');
+        }
+
+        function openEditor(id = null) {
+            editingId = id;
+            document.getElementById('steps-wrapper').innerHTML = '';
+            if(id) {
+                const p = procedures.find(x => x.id === id);
+                document.getElementById('proc-name').value = p.name;
+                p.steps.forEach(s => addStepField(s.title, s.desc));
+                document.getElementById('editor-title').innerText = "Editar Procedimento";
+            } else {
+                document.getElementById('proc-name').value = '';
+                addStepField();
+                document.getElementById('editor-title').innerText = "Novo Procedimento";
+            }
+            switchView('edit-view');
+        }
+
+        function addStepField(t = '', d = '') {
+            const container = document.getElementById('steps-wrapper');
+            const div = document.createElement('div');
+            div.className = 'step-editor-item';
+            div.innerHTML = `
+                <button class="remove-step" onclick="this.parentElement.remove()">Remover</button>
+                <h4>Etapa</h4>
+                <input type="text" class="s-title" placeholder="Título (ex: Lavagem)" value="${t}">
+                <textarea class="s-desc" placeholder="Detalhes técnicos..." >${d}</textarea>
+            `;
+            container.appendChild(div);
+        }
+
+        function saveProcedure() {
+            const name = document.getElementById('proc-name').value;
+            const stepDivs = document.querySelectorAll('.step-editor-item');
+            const steps = Array.from(stepDivs).map(d => ({
+                title: d.querySelector('.s-title').value,
+                desc: d.querySelector('.s-desc').value
+            })).filter(s => s.title || s.desc);
+
+            if(!name || steps.length === 0) return alert("Preencha o nome e as etapas!");
+
+            if(editingId) {
+                const idx = procedures.findIndex(x => x.id === editingId);
+                procedures[idx] = { id: editingId, name, steps };
+            } else {
+                procedures.push({ id: Date.now(), name, steps });
+            }
+            saveToStorage();
+            goHome();
+        }
+
+        function deleteProc(id) {
+            if(confirm("Excluir este roteiro?")) {
+                procedures = procedures.filter(x => x.id !== id);
+                saveToStorage();
+                renderHome();
+            }
+        }
+
+        // --- Lógica de Apresentação (Touch) ---
+        function startPresentation(id) {
+            activeProc = procedures.find(x => x.id === id);
+            currentStep = 0;
+            document.getElementById('main-header').style.display = 'none';
+            document.getElementById('presentation-view').classList.add('active');
+            updatePresContent();
+        }
+
+        function updatePresContent() {
+            const s = activeProc.steps[currentStep];
+            document.getElementById('pres-counter').innerText = `Etapa ${currentStep + 1} de ${activeProc.steps.length}`;
+            document.getElementById('pres-title').innerText = s.title;
+            document.getElementById('pres-desc').innerText = s.desc;
+        }
+
+        function handleTap(e) {
+            if(currentStep < activeProc.steps.length - 1) {
+                currentStep++;
+                updatePresContent();
+            } else {
+                alert("Fim do procedimento!");
+                closePresentation(e);
+            }
+        }
+
+        function closePresentation(e) {
+            e.stopPropagation();
+            goHome();
+        }
+
+        window.onload = renderHome;
+    </script>
+</body>
+</html>
